@@ -12,82 +12,79 @@ using namespace std;
 
 typedef int (*parr)[Max];
 
-int n, m, ans = 0;
-int arr[Max][Max];
-int visited[Max][Max];
-int add_y[4] = {1, 0, -1, 0};
-int add_x[4] = {0, -1, 0, 1};
-// vector<pair<int, int>> emptyPos;
+int N, M, answer = 0;
+const int add_y[4] = {1, 0, -1, 0};
+const int add_x[4] = {0, -1, 0, 1};
+vector<pair<int, int>> emptyPos;
 vector<pair<int, int>> virusPos;
 
-void dfs(parr arr, int start_y, int start_x){
+void dfs(parr arr, parr visited, int start_y, int start_x){
 	visited[start_y][start_x] = 1;	
 	arr[start_y][start_x] = 2;
 	for(int i = 0; i < 4; i++){
 		int new_y = start_y + add_y[i];
 		int new_x = start_x + add_x[i];
-		if(!visited[new_y][new_x] && arr[new_y][new_x] == 0) dfs(arr, new_y, new_x);
+		if(!visited[new_y][new_x] && arr[new_y][new_x] == 0) dfs(arr, visited, new_y, new_x);
 	}
 }
 
 int countSafeArea(parr arr){
 	int ret = 0;
-	for(int i = 0; i < n; i++){
-		for(int j = 0; j < m; j++){
+	for(int i = 0; i < N; i++){
+		for(int j = 0; j < M; j++){
 			if(arr[i][j] == 0) ret++;
 		}
 	}
 	return ret;
 }
 
-int go(){
+int spreadVirus(parr arr, parr visited){
 	int copy_arr[Max][Max];	
-	for(int i = 0; i < n; i++)	{
-		for(int j = 0; j < m; j++){
+	for(int i = 0; i < N; i++)	{
+		for(int j = 0; j < M; j++){
 			copy_arr[i][j] = arr[i][j];
 		}
 	}
 	
 	for(int i = 0, lim = virusPos.size(); i < lim; i++){
 		int start_y = virusPos[i].first, start_x = virusPos[i].second;
-		if(!visited[start_y][start_x]) dfs(copy_arr, start_y, start_x);
+		if(!visited[start_y][start_x]) dfs(copy_arr, visited, start_y, start_x);
 	}
 	return countSafeArea(copy_arr);	
 }
 
-void backtracking(int cnt, int now){
+void backtracking(parr arr, int cnt, int now){
+	int visited[Max][Max];
 	if(cnt == 3){
 		memset(visited, 0, sizeof(visited));
-		ans = max(ans, go());
+		answer = max(answer, spreadVirus(arr, visited));
 		return;
 	}
 	
-	int now_i = now / m;
-	int now_j = now % m;
-	for(int i = now_i; i < n; i++){
-		for(int j = now_j; j < m; j++){
-			if(arr[i][j] != 0) continue;
-			arr[i][j] = 1;
-			backtracking(cnt + 1, now_i * m + now_j);
-			arr[i][j] = 0;
-		}
+	for(int i = now, lim = emptyPos.size(); i < lim; i++){
+		int y = emptyPos[i].first, x = emptyPos[i].second;	
+		if(arr[y][x] != 0) continue;
+		arr[y][x] = 1;
+		backtracking(arr, cnt + 1, i);
+		arr[y][x] = 0;
 	}
 }
 
 int main(void){
 	ios::sync_with_stdio(false); cin.tie(NULL);
 	
-	cin >> n >> m;
+	int arr[Max][Max];
+	cin >> N >> M;
 	
-	for(int i = 0; i < n; i++){
-		for(int j = 0; j < m; j++){
+	for(int i = 0; i < N; i++){
+		for(int j = 0; j < M; j++){
 			cin >> arr[i][j];
-			// if(arr[i][j] == 0) emptyPos.push_back({i, j});
+			if(arr[i][j] == 0) emptyPos.push_back({i, j});
 			if(arr[i][j] == 2) virusPos.push_back({i, j});
 		}
 	}
 	
-	backtracking(0, 0);
-	cout << ans << "\n";	
+	backtracking(arr, 0, 0);
+	cout << answer << "\n";	
 	return 0;
 }
