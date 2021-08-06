@@ -1,90 +1,182 @@
-// TODO
-// n m 소문자 대문자로 바꿀 것.
-// 전역 배열, 변수 모두 지역으로 바꾸고 함수 전달로 바꿀것.
-// 변수 함수 이름 신경써서 다시 바꿀것.
-// 비어있는 위치 저장해서 더 빠르게 풀것
-// c로도 구현해볼것
-
 #include <bits/stdc++.h>
-#define Max 10
 
 using namespace std;
 
-typedef int (*parr)[Max];
+typedef struct _relation{
+	char sideName;
+	string adj_corner;	
+}Relation; 
 
-int N, M, answer = 0;
-const int add_y[4] = {1, 0, -1, 0};
-const int add_x[4] = {0, -1, 0, 1};
-vector<pair<int, int>> emptyPos;
-vector<pair<int, int>> virusPos;
+typedef Relation Data;
 
-void dfs(parr arr, parr visited, int start_y, int start_x){
-	visited[start_y][start_x] = 1;	
-	arr[start_y][start_x] = 2;
-	for(int i = 0; i < 4; i++){
-		int new_y = start_y + add_y[i];
-		int new_x = start_x + add_x[i];
-		if(!visited[new_y][new_x] && arr[new_y][new_x] == 0) dfs(arr, visited, new_y, new_x);
+char cube[6][3][3];
+char sideColors[6] = { 'w', 'r', 'y', 'o', 'b', 'g'};
+Relation connect[7][4];
+
+int getSideNum(char sideName){
+	switch(sideName){
+		case 'U':
+			return 0;	
+		case 'F':
+			return 1;
+		case 'D':
+			return 2;
+		case 'B':
+			return 3;
+		case 'R':
+			return 4;
+		case 'L':
+			return 5;
+		default :
+			return 6;
+	}
+	return -1;
+}
+
+void simpleCopy(Data * arr_to, Data * arr_from, int size){
+	
+	for(int i = 0; i < size; i++)	{
+		arr_to[i] = arr_from[i];
 	}
 }
 
-int countSafeArea(parr arr){
-	int ret = 0;
-	for(int i = 0; i < N; i++){
-		for(int j = 0; j < M; j++){
-			if(arr[i][j] == 0) ret++;
+void setting(Data * a, int * Jump, int * startIdx){
+	if(a->adj_corner == "R1") {*Jump = 1; *startIdx = 0;}
+	else if(a->adj_corner == "R3") {*Jump = 1; *startIdx = 6;}
+	else if(a->adj_corner == "C1") {*Jump = 3; *startIdx = 0;}
+	else {*Jump = 3; *startIdx = 2;}
+}
+
+void complicatedCopy(Data to, Data from){
+	int fromJump, toJump, fromIdx, toIdx;
+	
+	setting(&from, &fromJump, &fromIdx);
+	setting(&to, &toJump, &toIdx);
+		
+	for(int i = 0; i < 3; i++){
+		 cube[getSideNum(to.sideName)][toIdx / 3][toIdx % 3] = cube[getSideNum(from.sideName)][fromIdx / 3][fromIdx % 3];
+		fromIdx += fromJump;
+		toIdx += toJump;
+	}
+}
+
+void InitCube(){
+	for(int i = 0; i < 6; i++){
+		for(int j = 0; j < 3; j++){
+			for(int k = 0; k < 3; k++){
+				cube[i][j][k] = sideColors[i];	
+			}
 		}
 	}
-	return ret;
+	Relation temp1[4] = {{'D', "R3"}, {'R', "R3"}, {'U', "R3"}, {'L', "R3"}};
+	simpleCopy(connect[getSideNum('F')], temp1, 4);
+	
+	Relation temp2[4] = {{'U', "R1"}, {'R', "R1"}, {'D', "R1"}, {'L', "R1"}};
+	simpleCopy(connect[getSideNum('B')], temp2, 4);
+	
+	Relation temp3[4] ={{'R', "C1"}, {'B', "R1"}, {'L', "C3"}, {'F', "R1"}};
+	simpleCopy(connect[getSideNum('U')], temp3, 4);
+	
+	Relation temp4[4] = {{'R', "C3"}, {'F', "R3"}, {'L', "C1"}, {'B', "R3"}};
+	simpleCopy(connect[getSideNum('D')], temp4, 4);
+	
+	Relation temp5[4] = {{'F', "C3"}, {'D', "C1"}, {'B', "C1"}, {'U', "C3"}};
+	simpleCopy(connect[getSideNum('R')], temp5, 4);
+	
+	Relation temp6[4] ={{'F', "C1"}, {'U', "C1"}, {'B', "C3"}, {'D', "C3"}};
+	simpleCopy(connect[getSideNum('L')], temp6, 4);
 }
 
-int spreadVirus(parr arr, parr visited){
-	int copy_arr[Max][Max];	
-	for(int i = 0; i < N; i++)	{
-		for(int j = 0; j < M; j++){
-			copy_arr[i][j] = arr[i][j];
+int move(int now, int distance){
+	now += distance;
+	if(now < 0) now += 4;
+	return now % 4;
+}
+
+void rotateCurSide(char sideName){
+	
+	int sideNum = getSideNum(sideName);
+	char tempcube[3][3];
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			tempcube[i][j] = cube[sideNum][2 - j][i];
 		}
 	}
-	
-	for(int i = 0, lim = virusPos.size(); i < lim; i++){
-		int start_y = virusPos[i].first, start_x = virusPos[i].second;
-		if(!visited[start_y][start_x]) dfs(copy_arr, visited, start_y, start_x);
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			cube[sideNum][i][j] = tempcube[i][j];	
+		}
 	}
-	return countSafeArea(copy_arr);	
 }
 
-void backtracking(parr arr, int cnt, int now){
-	int visited[Max][Max];
-	if(cnt == 3){
-		memset(visited, 0, sizeof(visited));
-		answer = max(answer, spreadVirus(arr, visited));
-		return;
+void rotateCube(char sideName, char direc){
+	int sideNum	= getSideNum(sideName);
+	int distance = (direc == '+') ? 1 : -1;
+	int next, now = 0;
+	int lim = 1;	
+	if(direc == '-') lim = 3;
+	for(int i = 0; i < lim; i++){
+		rotateCurSide(sideName);
 	}
 	
-	for(int i = now, lim = emptyPos.size(); i < lim; i++){
-		int y = emptyPos[i].first, x = emptyPos[i].second;	
-		if(arr[y][x] != 0) continue;
-		arr[y][x] = 1;
-		backtracking(arr, cnt + 1, i);
-		arr[y][x] = 0;
+	Data temp = { 'Z', "R1" };
+	complicatedCopy(temp, connect[sideNum][now]);
+	for(int i = 0; i < 3; i++){
+		next = move(now, distance);
+		complicatedCopy(connect[sideNum][now], connect[sideNum][next]);
+		now = next;
 	}
+	complicatedCopy(connect[sideNum][now], temp);
+}
+
+void printCube(){
+	for(int p = 0; p < 6; p++){
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++)	{
+				cout << cube[p][i][j];
+				}
+			cout << "\n";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+}
+
+void printCubeSide(char sideName){
+	int sideNum = getSideNum(sideName);
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++)	{
+			cout << cube[sideNum][i][j];
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+}
+
+void solve(){
+	
+	InitCube();
+	
+	int n;
+	cin >> n;
+	
+	vector<string> vec;
+	vec.resize(n);
+	
+	for(int i = 0; i < n; i++){
+		cin >> vec[i];
+	}
+	for(int i = 0; i < n; i++){
+		rotateCube(vec[i][0], vec[i][1]);
+	}
+	
+	// printCubeSide('U');
+	printCube();
 }
 
 int main(void){
 	ios::sync_with_stdio(false); cin.tie(NULL);
-	
-	int arr[Max][Max];
-	cin >> N >> M;
-	
-	for(int i = 0; i < N; i++){
-		for(int j = 0; j < M; j++){
-			cin >> arr[i][j];
-			if(arr[i][j] == 0) emptyPos.push_back({i, j});
-			if(arr[i][j] == 2) virusPos.push_back({i, j});
-		}
-	}
-	
-	backtracking(arr, 0, 0);
-	cout << answer << "\n";	
+	int t; cin >> t;
+	while(t--) solve();
 	return 0;
 }
