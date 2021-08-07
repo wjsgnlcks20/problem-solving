@@ -1,180 +1,120 @@
 #include <bits/stdc++.h>
+#define Max 1001
 
 using namespace std;
 
-typedef struct _relation{
-	char sideName;
-	string adj_corner;	
-}Relation; 
+/*
+		 0  1  2
+		 3  4  5
+l		 6  7  8 
+9 10 11  18 19 20 27 28 29  36 37 38
+12 13 14 21 22 23 30 31 32 	39 40 41
+15 16 17 24 25 26 33 34 35 	42 43 44
+		 45 46 47 
+		 48 49 50 
+		 51 52 53
+*/
+// 어찌 되었던 돌아가는 순서에 관한 것은 따로 저장해주어야 했던 것이고,
+// 다만 좌표말고 인덱스로 표현하니 매우 간편해졌다.
 
-typedef Relation Data;
-
-char cube[6][3][3];
-char sideColors[6] = { 'w', 'r', 'y', 'o', 'b', 'g'};
-Relation connect[7][4];
+char colors[7] = "wgrboy";
+char arr[55];
+int cube[6][3][3];
 
 int getSideNum(char sideName){
 	switch(sideName){
-		case 'U':
-			return 0;	
-		case 'F':
-			return 1;
-		case 'D':
-			return 2;
-		case 'B':
-			return 3;
-		case 'R':
-			return 4;
-		case 'L':
-			return 5;
-		default :
-			return 6;
+		case'U': return 0;
+		case'L': return 1;
+		case'F': return 2;
+		case'R': return 3;
+		case'B': return 4;
+		case'D': return 5;
 	}
 	return -1;
 }
 
-void simpleCopy(Data * arr_to, Data * arr_from, int size){
-	
-	for(int i = 0; i < size; i++)	{
-		arr_to[i] = arr_from[i];
-	}
-}
+int relation[6][12] = {
+	{9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38},
+	{51, 48, 45, 24, 21, 18, 6, 3, 0, 38, 41, 44},
+	{11, 14, 17, 45, 46, 47, 33, 30, 27, 8, 7, 6},
+	{20, 23, 26, 47, 50, 53, 42, 39, 36, 2, 5, 8},
+	{29, 32, 35, 53, 52, 51, 15, 12, 9, 0, 1, 2},
+	{17, 16, 15, 44, 43, 42, 35, 34, 33, 26, 25, 24}
+};
 
-void setting(Data * a, int * Jump, int * startIdx){
-	if(a->adj_corner == "R1") {*Jump = 1; *startIdx = 0;}
-	else if(a->adj_corner == "R3") {*Jump = 1; *startIdx = 6;}
-	else if(a->adj_corner == "C1") {*Jump = 3; *startIdx = 0;}
-	else {*Jump = 3; *startIdx = 2;}
-}
-
-void complicatedCopy(Data to, Data from){
-	int fromJump, toJump, fromIdx, toIdx;
-	
-	setting(&from, &fromJump, &fromIdx);
-	setting(&to, &toJump, &toIdx);
-		
-	for(int i = 0; i < 3; i++){
-		 cube[getSideNum(to.sideName)][toIdx / 3][toIdx % 3] = cube[getSideNum(from.sideName)][fromIdx / 3][fromIdx % 3];
-		fromIdx += fromJump;
-		toIdx += toJump;
-	}
-}
-void InitCube(){
+void InitArr(){
 	for(int i = 0; i < 6; i++){
-		for(int j = 0; j < 3; j++){
-			for(int k = 0; k < 3; k++){
-				cube[i][j][k] = sideColors[i];	
-			}
+		for(int j = 0; j < 9; j++){
+			arr[i * 9 + j] = colors[i];
 		}
 	}
-	Relation temp1[4] = {{'D', "R3"}, {'R', "R3"}, {'U', "R3"}, {'L', "R3"}};
-	simpleCopy(connect[getSideNum('F')], temp1, 4);
-	
-	Relation temp2[4] = {{'U', "R1"}, {'R', "R1"}, {'D', "R1"}, {'L', "R1"}};
-	simpleCopy(connect[getSideNum('B')], temp2, 4);
-	
-	Relation temp3[4] ={{'R', "C1"}, {'B', "R1"}, {'L', "C3"}, {'F', "R1"}};
-	simpleCopy(connect[getSideNum('U')], temp3, 4);
-	
-	Relation temp4[4] = {{'R', "C3"}, {'F', "R3"}, {'L', "C1"}, {'B', "R3"}};
-	simpleCopy(connect[getSideNum('D')], temp4, 4);
-	
-	Relation temp5[4] = {{'F', "C3"}, {'D', "C1"}, {'B', "C1"}, {'U', "C3"}};
-	simpleCopy(connect[getSideNum('R')], temp5, 4);
-	
-	Relation temp6[4] ={{'F', "C1"}, {'U', "C1"}, {'B', "C3"}, {'D', "C3"}};
-	simpleCopy(connect[getSideNum('L')], temp6, 4);
 }
 
-int move(int now, int distance){
-	now += distance;
-	if(now < 0) now += 4;
-	return now % 4;
-}
-
-void rotateCurSide(char sideName){
-	
+void rotateCube(char sideName){
 	int sideNum = getSideNum(sideName);
-	char tempcube[3][3];
-	for(int i = 0; i < 3; i++){
-		for(int j = 0; j < 3; j++){
-			tempcube[i][j] = cube[sideNum][2 - j][i];
-		}
+	// arr 이 해당 인덱스에 대해 가르키는 색깔 값 바꿔주기
+	int que[12];
+	char temp[3][3];
+	
+	for(int i = 0; i < 12; i++){
+		que[i] = arr[relation[sideNum][i]];	
 	}
-	for(int i = 0; i < 3; i++){
-		for(int j = 0; j < 3; j++){
-			cube[sideNum][i][j] = tempcube[i][j];	
-		}
-	}
-}
-
-void rotateCube(char sideName, char direc){
-	int sideNum	= getSideNum(sideName);
-	int distance = (direc == '+') ? 1 : -1;
-	int next, now = 0;
-	int lim = 1;	
-	if(direc == '-') lim = 3;
-	for(int i = 0; i < lim; i++){
-		rotateCurSide(sideName);
+	for(int i = 0; i < 12; i++){
+		arr[relation[sideNum][i]] = que[(i + 3) % 12];
 	}
 	
-	Data temp = { 'Z', "R1" };
-	complicatedCopy(temp, connect[sideNum][now]);
+	// 회전하는 화면 배열 회전
+
 	for(int i = 0; i < 3; i++){
-		next = move(now, distance);
-		complicatedCopy(connect[sideNum][now], connect[sideNum][next]);
-		now = next;
-	}
-	complicatedCopy(connect[sideNum][now], temp);
+		for(int j = 0; j < 3; j++){
+			temp[i][j] = arr[cube[sideNum][2 - j][i]];
+		}
+	}	
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			arr[cube[sideNum][i][j]] = temp[i][j];
+		}
+	}	
 }
 
-void printCube(){
-	for(int p = 0; p < 6; p++){
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++)	{
-				cout << cube[p][i][j];
-				}
-			cout << "\n";
+void printUpSide(){
+	int sideNum = getSideNum('U');
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			// cout << cube[sideNum][i][j] << " ";
+			cout << arr[cube[sideNum][i][j]];
 		}
 		cout << "\n";
 	}
-	cout << "\n";
-}
-
-void printCubeSide(char sideName){
-	int sideNum = getSideNum(sideName);
-	for(int i = 0; i < 3; i++){
-		for(int j = 0; j < 3; j++)	{
-			cout << cube[sideNum][i][j];
-		}
-		cout << "\n";
-	}
-	cout << "\n";
 }
 
 void solve(){
 	
-	InitCube();
+	int n, lim; cin >> n;
+	char input[Max][3];
 	
-	int n;
-	cin >> n;
-	
-	vector<string> vec;
-	vec.resize(n);
-	
+	InitArr();
 	for(int i = 0; i < n; i++){
-		cin >> vec[i];
+		cin >> input[i];
 	}
 	for(int i = 0; i < n; i++){
-		rotateCube(vec[i][0], vec[i][1]);
+		if(input[i][1] == '+') lim = 1;
+		else lim = 3;
+		for(int k = 0; k < lim; k++)
+			rotateCube(input[i][0]);
 	}
-	
-	// printCubeSide('U');
-	printCube();
+	printUpSide();	
 }
 
 int main(void){
 	ios::sync_with_stdio(false); cin.tie(NULL);
+	for(int i = 0; i < 6; i++){
+		for(int j = 0; j <3; j++){
+			for(int k = 0; k < 3; k++){
+				cube[i][j][k] = i * 9 + j * 3 + k;
+			}
+		}
+	}
 	int t; cin >> t;
 	while(t--) solve();
 	return 0;
