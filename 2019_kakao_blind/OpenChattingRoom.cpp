@@ -13,7 +13,6 @@ vector<string> solution(vector<string> record) {
 	string cmd;
 	string nick_name;
 	string user_id;
-	
 	for(string input: record){
 		stringstream ss(input);
 		ss >> cmd;
