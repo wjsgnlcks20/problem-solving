@@ -8,28 +8,33 @@ using namespace std;
 
 vector<int> solution(int N, vector<int> stages) {
     vector<int> answer;
-	vector<pair<double, int>> save;	
+	double save[501] = {};
+	double sum = 0;
 	
-	double failRate, sum = 0;
-	for(int i = N - 1; i >= 0; i--){
-		sum += stages[i];	
-		failRate = (double)stages[i] / sum;
-		save.push_back({failRate, i + 1});
+	for(int i = 0; i < stages.size(); i++){
+		save[stages[i]]++;
 	}
-	sort(save.begin(), save.end());
-	for(auto elem : save){
-		answer.push_back(elem.second);
-		cout << elem.second << " ";
-	}
-	cout << "\n";
 	
+	vector<pair<double, int>> temp;
+	
+	for(int i = N + 1; i >= 1; i--){
+		sum += save[i];
+		if(i > N) continue;
+		temp.push_back({save[i] / sum, -i});
+	}
+	
+	sort(temp.begin(), temp.end(), greater<pair<double, int>>());
+	for(auto elem : temp){
+		answer.push_back(-elem.second);
+		// cout << -elem.second << " ";
+	}
     return answer;
 }
 
 int main(void){
-	int N;
+	int n;
 	string input;	
-	cin >> N;
+	cin >> n;
 	getchar();
 	getline(cin, input);
 	input = input.substr(1, input.size());
@@ -39,6 +44,6 @@ int main(void){
 		if(input.find(" ") == string::npos) break;
 		input = input.substr(input.find(" ") + 1, input.size());
 	}
-	solution(N, stages);
+	solution(n, stages);
 	return 0;
 }
