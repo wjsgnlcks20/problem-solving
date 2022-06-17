@@ -1,4 +1,4 @@
 .vscode
 \githubtoken.txt
-\.exe
-\.manifest
+*.exe
+*.manifest
