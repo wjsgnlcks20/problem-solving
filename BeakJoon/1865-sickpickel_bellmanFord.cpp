@@ -10,41 +10,45 @@ typedef pair<int, int> pii;
 int N;
 
 bool doesNegetiveCycleExist(int V, vector<pair<pii, int>> edges){
-	bool flag = 0;
-	int dist[Max];
-	fill(dist + 1, dist + V + 1, INF);
-		
+	bool update;
+	int upper[Max];
+	fill(upper + 1, upper + V + 1, INF);
+	
 	for(int i = 0; i < V; i++){
-		for(auto edge : edges){
-			int now = edge.first.first;
-			int next = edge.first.second;
-			int cost = edge.second;
-			if(dist[next] > dist[now] + cost){
-				dist[next] = dist[now] + cost;	
-				if(i == V - 1) flag = 1;
+		update = 0;
+		for(auto elem : edges){
+			int now = elem.first.first;
+			int next = elem.first.second;
+			int cost = elem.second;
+			if(upper[next] > upper[now] + cost){
+				upper[next] = upper[now] + cost;
+				update = 1;
 			}
-		}	
+		}
+		if(!update) return 0;
 	}
-	return flag;
+	if(update) return 1;
+	return 0;	
 }
 
 void solve(){
-	int M, W;
-	vector<pair<pii, int>> arr;
+	int N, M, W;
+	vector<pair<pii,int>> edges;
 	cin >> N >> M >> W;
-	
 	for(int i = 0; i < M; i++){
 		int S, E, T;
 		cin >> S >> E >> T;
-		arr.push_back({{S, E}, T});
-		arr.push_back({{E, S}, T});
+		edges.push_back({{S, E}, T});
+		edges.push_back({{E, S}, T});
 	}
+	
 	for(int i = 0; i < W; i++){
 		int S, E, T;
 		cin >> S >> E >> T;
-		arr.push_back({{S, E}, -T});
+		edges.push_back({{S, E}, -T});
 	}
-	cout << (doesNegetiveCycleExist(N, arr) ? "YES" : "NO") << "\n";	
+	
+	cout << (doesNegetiveCycleExist(N, edges) ? "YES" : "NO") << "\n";
 }
 
 int main(void){
