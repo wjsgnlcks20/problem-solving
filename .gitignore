@@ -14,4 +14,8 @@
 *.exe
 *.manifest
 token.md
+<<<<<<< HEAD
 **/*.dSYM/
+=======
+*/*.dSYM/
+>>>>>>> 88366d330e35a66bd817b6fd27c3ffe66371c993
