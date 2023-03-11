@@ -40,7 +40,7 @@ void solve(int test_case){
 
     visited[arr[0][0] - 'A'] = 1;
     dfs(0, 0, visited, arr, 1);
-    
+
     cout << "#" << test_case << " ";
     cout << answer << "\n";
 }
