@@ -10,7 +10,7 @@
 ### Above combination will ignore all files without extension ### 
 
 .vscode
-\githubtoken.txt
+githubtoken.txt
 *.exe
 *.manifest
 token.md
