@@ -1,0 +1,8 @@
+{
+    "cmake.configureOnOpen": false,
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "ios": "cpp"
+    },
+    "terminal.integrated.fontSize": 15
+}
