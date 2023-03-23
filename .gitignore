@@ -9,7 +9,6 @@
 
 ### Above combination will ignore all files without extension ### 
 
-.vscode
 githubtoken.txt
 *.exe
 *.manifest
