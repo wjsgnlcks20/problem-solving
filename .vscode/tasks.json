@@ -38,8 +38,7 @@
             "type": "shell",
             "label": "execute-external",
             "command": "osascript -e 'tell app \"Terminal\" \ndo script \"${fileDirname}/${fileBasenameNoExtension}\"\n end tell' && open -a Terminal",
-            "presentation": {},
-            // "presentation": { "reveal" : "never",},
+            "presentation": { "reveal" : "never",},
             "group": "test",
         },
         // C++ build & run (external)

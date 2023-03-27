@@ -1,4 +1,6 @@
-#include <bits/stdc++.h>
+// #include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
 #define MAX // 200001 
 #define INF 987654321
  
@@ -27,25 +29,18 @@ void solve(){
     for (int i = 0; i < n; i++){
         cin >> a[i] >> b[i];
     }
-    ll past = 1;
-    ll pgcd = a[0];
+    ll lcm = 1, gcd = 0;
     int answer = 0;
     for (int i = 0; i < n; i++) {
-        ll lcm = get_lcm(b[i], past);
-        ll gcd = get_gcd(a[i], pgcd);
-        if (gcd % (lcm / past) != 0){
-            cout << "i : " << i << "\n";
+        lcm = get_lcm(b[i], lcm);
+        gcd = get_gcd(a[i] * b[i], gcd);
+        if (gcd % lcm != 0){
             answer++;
-            past = 1;
-            if (i != n - 1)
-                pgcd = a[i + 1];
-        }
-        else {
-            past = lcm;
-            pgcd = gcd;
-        }
+            lcm = b[i];
+            gcd = a[i] * b[i];
+        } 
     }
-    cout << "answer : " << answer + 1 << "\n";
+    cout << answer + 1 << "\n";
 }
  
 int main(void){
