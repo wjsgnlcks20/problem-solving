@@ -29,7 +29,6 @@ void solve(){
     }
     ll past = 1;
     ll pgcd = a[0];
-    int cut = 0;
     int answer = 0;
     for (int i = 0; i < n; i++) {
         ll lcm = get_lcm(b[i], past);
