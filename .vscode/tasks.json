@@ -1,44 +1,7 @@
 {
     "version": "2.0.0",
     "tasks": [
-        // {
-        //     "type": "shell",
-        //     "label": "clang build active file",
-        //     "command": "clang",
-        //     "args": [
-        //         "-g",
-        //         "${file}",
-        //         "-o",
-        //         "${fileDirname}/${fileBasenameNoExtension}"
-        //     ],
-        //     "options": {
-        //         "cwd": "${workspaceRoot}"
-        //     },
-        //     "presentation": {},
-        //     "group": "build",
-        //     "problemMatcher": []
-        // },
-        // {
-        //     "type": "shell",
-        //     "label": "clang++ bulid active file",
-        //     "command": "clang++",
-        //     "args": [
-        //         "-std=c++17",
-        //         "-stdlib=libc++",
-        //         "-g",
-        //         "${file}",
-        //         "-o",
-        //         "${fileDirname}/${fileBasenameNoExtension}"
-        //     ],
-        //     "options": {
-        //         "cwd": "${workspaceRoot}"
-        //     },
-        //     "presentation": {
-        //         "clear": true
-        //     },
-        //     "group": "build",
-        //     "problemMatcher": []
-        // },
+        // execute in integrated terminal
         {
             "type": "shell",
             "label": "execute",
@@ -46,6 +9,7 @@
             "group": "test",
             "presentation": {}
         },
+        // g++ compile
         {
             "type": "cppbuild",
             "label": "g++ build active file",
@@ -65,25 +29,28 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": "build",
+            "presentation": { "reveal" : "never",},
+            "group": "build"
         },
-        // {
-        //     "type": "cppbuild",
-        //     "label": "gcc build active file",
-        //     "command": "/usr/bin/gcc",
-        //     "args": [
-        //         "-g",
-        //         "${file}",
-        //         "-o",
-        //         "${fileDirname}/${fileBasenameNoExtension}"
-        //     ],
-        //     "options": {
-        //         "cwd": "${fileDirname}"
-        //     },
-        //     "problemMatcher": [
-        //         "$gcc"
-        //     ],
-        //     "group": "build",
-        // },
+        // execute compiled file in external terminal
+        // (C/C++ Compile Run 에서 mac 상위 버전 지원이 안되어 task 직접 구성)
+        {
+            "type": "shell",
+            "label": "execute-external",
+            "command": "osascript -e 'tell app \"Terminal\" \ndo script \"${fileDirname}/${fileBasenameNoExtension}\"\n end tell' && open -a Terminal",
+            "presentation": {},
+            // "presentation": { "reveal" : "never",},
+            "group": "test",
+        },
+        // C++ build & run (external)
+        {
+            "label": "run",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "g++ build active file",
+                "execute-external"
+            ],
+            "problemMatcher": []
+        }
     ]
 }
