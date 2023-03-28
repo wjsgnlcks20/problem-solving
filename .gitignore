@@ -9,9 +9,7 @@
 
 ### Above combination will ignore all files without extension ### 
 
-githubtoken.txt
 *.exe
 *.manifest
-token.md
 **/*.dSYM/
 **/*.out
