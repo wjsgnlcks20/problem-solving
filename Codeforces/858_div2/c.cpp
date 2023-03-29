@@ -2,14 +2,15 @@
 
 using namespace std;
 
+typedef long long ll;
+
 long long lmin(long long a, long long b){
     return a < b ? a : b;
 }
 
 void solve(){
     int N;
-    int min_diff = INT_MAX, min_diff_idx = 0;
-    long long sum = 0, diff = 0, ans = LLONG_MAX;
+    ll min_diff = LLONG_MAX, min_diff_idx = 0, sum = 0, diff = 0, ans = LLONG_MAX;
     cin >> N;
     vector<int> p(N * 2);
     for (int i = 0; i < 2 * N; i++){
@@ -23,18 +24,22 @@ void solve(){
         return ;
     }
     if (N == 2) {
-        ans = lmin(ans, abs(p[0] - 2) + abs(p[1] - 2) + abs(p[2] - 2) + abs(p[3] - 2));
-    }
-    for (int i = 0; i < 2 * N; i++){
-        diff += abs(p[i] - (-1));
-        if (min_diff > abs(p[i] - N)){
-            min_diff = abs(p[i] - N);
-            min_diff_idx = i;
+        ll save = 0;
+        for (int i = 0; i < 4; i++){
+            save += abs(p[i] - 2);
         }
+        ans = lmin(ans, save);
     }
-    diff -= abs(p[min_diff_idx] - (-1));
-    diff += abs(p[min_diff_idx] - N);
-    ans = lmin(ans, diff);
+    if (N % 2 == 0){
+        for (int i = 0; i < 2 * N; i++){
+            diff += abs(p[i] - (-1));
+            if (min_diff > abs(p[i] - N) - abs(p[i] + 1)){
+                min_diff = abs(p[i] - N) - abs(p[i] + 1);
+            }
+        }
+        diff += min_diff;
+        ans = lmin(ans, diff);
+    }
     cout << ans << "\n";
 }
 
