@@ -11,5 +11,6 @@
 
 *.exe
 *.manifest
+**/.DS_Store
 **/*.dSYM/
 **/*.out
