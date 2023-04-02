@@ -10,44 +10,17 @@ void solve(){
     vector<int> arr(n);
     for(int i = 0; i < n; i++){
         cin >> arr[i];
-        maxx = max(maxx, arr[i]);
     }
-    int check = 1;
-    int ans = 0;
-    if (n % 2 == 0){
-        while (maxx * 2) {
-            int cur = 0;
-            for (int i = 0; i < n; i++){
-                cur += arr[i] % 2;
-                arr[i] /= 2;
-            }
-            if (cur % 2) {
-                cout << "-1\n";
-                return ;
-            }
-            maxx /= 2;
-        }
-        cout << "0\n";
+    int ans = arr[0];
+    for (int i = 1; i < n; i++){
+        ans ^= arr[i];
     }
-    else {
-        while (maxx * 2){
-            int cur = 0;
-            for (int i = 0; i < n; i++){
-                cur += arr[i] % 2;
-                arr[i] /= 2;
-            }
-            if (abs(cur - (n - cur)) == 1) {
-                ans += check * (cur % 2 ? 1 : 0);
-            }
-            else if (abs(cur - (n - cur)) != 0){
-                cout << "-1\n";
-                return ;
-            }
-            check *= 2;
-            maxx /= 2;
-        }
-        cout << ans << "\n";
+    if (n % 2 == 0 && ans != 0){
+        cout << "-1\n";
+        return ;
     }
+    cout << ans << "\n";
+
 }
  
 int main(void){
